@@ -90,8 +90,9 @@ namespace Collapse {
          * This should NOT be called directly but scheduled with ScheduleRegenerateBoard()
          */
         private IEnumerator RegenerateBoard() {
+
             yield return new WaitForSeconds(BoardRegenerationDelay);
-            
+
             for (var col = 0; col < BoardSize.x; col++) {
                 for (var row = 0; row < BoardSize.y; row++) {
                     if (blocks[col, row] == null) {

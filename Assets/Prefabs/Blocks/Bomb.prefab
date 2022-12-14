@@ -132,7 +132,7 @@ MonoBehaviour:
   Sprite: {fileID: 5381300331545654035}
   ShakeStrength: {x: 0.03, y: 0.03, z: 0}
   ShakeVibrato: 50
-  ShakeDuration: 0.4
+  ShakeDuration: 0.2
 --- !u!61 &5736765790641265397
 BoxCollider2D:
   m_ObjectHideFlags: 0

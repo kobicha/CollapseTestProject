@@ -7,6 +7,9 @@ namespace Collapse.Blocks {
      * Bomb specific behavior
      */
     public class Bomb : Block {
+        
+        private const float BOMB_EXPLOSION_ANIMTION_DELAY_MULTIPLIER = .05f;
+        
         [SerializeField]
         private Transform Sprite;
 
@@ -26,16 +29,19 @@ namespace Collapse.Blocks {
         }
 
         protected override void OnMouseUp() {
-            Shake();
+            base.OnMouseUp();
+         
         }
         
         /**
          * Convenience for shake animation with callback in the end
          */
-        private void Shake(Action onComplete = null) {
+        private void Shake(float delay, Action onComplete = null) {
             Sprite.DOKill();
             Sprite.localPosition = origin;
-            Sprite.DOShakePosition(ShakeDuration, ShakeStrength, ShakeVibrato, fadeOut: false).onComplete += () => {
+            var delayAmount = delay * BOMB_EXPLOSION_ANIMTION_DELAY_MULTIPLIER;
+            Sprite.DOShakePosition(ShakeDuration, ShakeStrength, ShakeVibrato, fadeOut: false)
+                .SetDelay(delayAmount).onComplete += () => {
                 onComplete?.Invoke();
             };
         }
@@ -44,6 +50,7 @@ namespace Collapse.Blocks {
             if (IsTriggered) return;
             IsTriggered = true;
             BoardManager.Instance.TriggerBomb(this);
+            Shake(delay, DestroyBlock);
         }
     }
 }

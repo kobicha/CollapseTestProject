@@ -10,7 +10,7 @@ namespace Collapse.Blocks {
     public abstract class Block : MonoBehaviour {
         
         private const float INTRO_ANIMTION_DELAY = .3f;
-        private const float TRIGGER_ANIMTION_DELAY_MULTIPLIER = .1f;
+        private const float TRIGGER_ANIMTION_DELAY_MULTIPLIER = .05f;
         private const float INTRO_ANIMATION_DURATION = .2f;
         private const float INTERACTION_ANIMATION_DURATION = .1f;
         private const float TRIGGER_ANIMATION_DURATION = .2f;
@@ -21,6 +21,7 @@ namespace Collapse.Blocks {
         public Vector2Int GridPosition;
 
         protected bool IsTriggered;
+        public bool IsAnimating => DOTween.IsTweening(transform, true);
         
         /**
          * Start
@@ -74,7 +75,7 @@ namespace Collapse.Blocks {
             return delayAmount;
         }
 
-        private void DestroyBlock()
+        protected virtual void DestroyBlock()
         {
             transform.DOKill();
             Destroy(gameObject);
