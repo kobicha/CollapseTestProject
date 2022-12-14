@@ -3,10 +3,19 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Collapse.Blocks {
+    
     /**
      * Block behavior - default handling of inputs, triggers and animations
      */
     public abstract class Block : MonoBehaviour {
+        
+        private const float INTRO_ANIMTION_DELAY = .3f;
+        private const float TRIGGER_ANIMTION_DELAY_MULTIPLIER = .1f;
+        private const float INTRO_ANIMATION_DURATION = .2f;
+        private const float INTERACTION_ANIMATION_DURATION = .1f;
+        private const float TRIGGER_ANIMATION_DURATION = .2f;
+        private const float INTERACTION_SCALE_FACTOR = 1.2f;
+
         // Public props used by BoardManager
         public BlockType Type;
         public Vector2Int GridPosition;
@@ -18,7 +27,7 @@ namespace Collapse.Blocks {
          */
         private void Start() {
             transform.localScale = Vector3.zero;
-            transform.DOScale(Vector3.one, .2f).SetDelay(Random.value * .3f);
+            transform.DOScale(Vector3.one, INTRO_ANIMATION_DURATION).SetDelay(Random.value * INTRO_ANIMTION_DELAY);
         }
 
         /**
@@ -27,7 +36,7 @@ namespace Collapse.Blocks {
         private void OnMouseEnter() {
             if (IsTriggered) return;
             transform.DOKill();
-            transform.DOScale(Vector3.one * 1.2f, .1f).SetEase(Ease.OutQuad);
+            transform.DOScale(Vector3.one * INTERACTION_SCALE_FACTOR, INTERACTION_ANIMATION_DURATION).SetEase(Ease.OutQuad);
         }
 
         /**
@@ -36,7 +45,7 @@ namespace Collapse.Blocks {
         private void OnMouseExit() {
             if (IsTriggered) return;
             transform.DOKill();
-            transform.DOScale(Vector3.one, .1f).SetEase(Ease.OutQuad);
+            transform.DOScale(Vector3.one, INTERACTION_ANIMATION_DURATION).SetEase(Ease.OutQuad);
         }
 
         /**
@@ -53,11 +62,20 @@ namespace Collapse.Blocks {
         public virtual void Triger(float delay) {
             if (IsTriggered) return;
             IsTriggered = true;
+            var delayAmount = CalculateTriggerDelay(delay);
+            transform.DOPunchScale(Vector3.one, TRIGGER_ANIMATION_DURATION).SetEase(Ease.InElastic).SetDelay(delayAmount).OnComplete(DestroyBlock);
             
-            // Clear from board
             BoardManager.Instance.ClearBlockFromGrid(this);
-            
-            // Kill game object
+        }
+
+        private float CalculateTriggerDelay(float delay)
+        {
+            var delayAmount = delay * TRIGGER_ANIMTION_DELAY_MULTIPLIER;
+            return delayAmount;
+        }
+
+        private void DestroyBlock()
+        {
             transform.DOKill();
             Destroy(gameObject);
         }

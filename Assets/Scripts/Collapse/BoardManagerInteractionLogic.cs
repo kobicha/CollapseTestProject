@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Collapse.Blocks;
+using UnityEngine;
 
 namespace Collapse {
     /**
@@ -20,24 +21,31 @@ namespace Collapse {
         public void TriggerMatch(Block block) {
             // Find all blocks in this match
             var results = new List<Block>();
-            var tested = new List<GridPosition>();
-            var blockPosition = new GridPosition(block.GridPosition.x, block.GridPosition.y);
+            var tested = new List<Vector2Int>();
+            var blockPosition = new Vector2Int(block.GridPosition.x, block.GridPosition.y);
             FindChainRecursive(block.Type, blockPosition, tested, results);
             
             // Trigger blocks
-            for (var i = 0; i < results.Count; i++) {
-                results[i].Triger(i);
+            for (var i = 0; i < results.Count; i++)
+            {
+                var distanceFromTrigger = DistanceFromTrigger(blockPosition, results[i].GridPosition);
+                results[i].Triger(distanceFromTrigger);
             }
 
             // Regenerate
-           // ScheduleRegenerateBoard();
+            ScheduleRegenerateBoard();
+        }
+
+        private float DistanceFromTrigger(Vector2Int trigger, Vector2Int block)
+        {
+            return Vector2Int.Distance(trigger, block);
         }
 
 
         /**
          * Recursively collect all neighbors of same type to build a full list of blocks in this "chain" in the results list
          */
-        private void FindChainRecursive(BlockType type, GridPosition blockPosition, List<GridPosition> testedPositions,
+        private void FindChainRecursive(BlockType type, Vector2Int blockPosition, List<Vector2Int> testedPositions,
             List<Block> results) {
            
             // Check if this block has already been tested
@@ -56,13 +64,13 @@ namespace Collapse {
             testedPositions.Add(blockPosition);
 
             // Recursively search the blocks adjacent to this one
-            FindChainRecursive(type, blockPosition + new GridPosition(-1,0), testedPositions, results); // up
-            FindChainRecursive(type,blockPosition + new GridPosition(1,0), testedPositions, results); // down
-            FindChainRecursive(type,blockPosition + new GridPosition(0,-1), testedPositions, results); // left
-            FindChainRecursive(type,blockPosition + new GridPosition(0,1), testedPositions, results); // right
+            FindChainRecursive(type, blockPosition + new Vector2Int(-1,0), testedPositions, results); // up
+            FindChainRecursive(type,blockPosition + new Vector2Int(1,0), testedPositions, results); // down
+            FindChainRecursive(type,blockPosition + new Vector2Int(0,-1), testedPositions, results); // left
+            FindChainRecursive(type,blockPosition + new Vector2Int(0,1), testedPositions, results); // right
         }
 
-        private Block GetBlockAtPosition(GridPosition blockPosition)
+        private Block GetBlockAtPosition(Vector2Int blockPosition)
         {
             if (blockPosition.x < 0 || blockPosition.x >= blocks.GetLength(1) || blockPosition.y < 0 || blockPosition.y >= blocks.GetLength(0))
             {
